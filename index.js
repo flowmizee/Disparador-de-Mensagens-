@@ -103,11 +103,16 @@ async function startBot() {
                     // Envia legenda separada
                     await sock.sendMessage(jid, { text: legenda });
                 } else if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
+                    // Envia imagem com legenda
                     await sock.sendMessage(jid, { image: { url: caminho }, caption: legenda });
                 } else if (['.mp4', '.mov', '.avi'].includes(ext)) {
+                    // Envia vídeo com legenda
                     await sock.sendMessage(jid, { video: { url: caminho }, caption: legenda });
                 } else {
+                    // Envia documento
                     await sock.sendMessage(jid, { document: { url: caminho }, mimetype: 'application/octet-stream', fileName: arquivo });
+                    // Envia legenda separada
+                    await sock.sendMessage(jid, { text: legenda });
                 }
 
                 console.log(`📎 Arquivo enviado: ${arquivo}`);
