@@ -10,6 +10,7 @@ const INTERVALO_ENTRE_NUMEROS = 25000; // 25 segundos entre números (ajustável
 const NUMEROS_FILE = 'numeros.txt';
 const LEGENDA_FILE = 'legenda.txt';
 const PRODUTOS_FILE = 'produtos.txt'; // Lista de arquivos que serão enviados
+const ERROS_FILE = 'erros.txt'; // Arquivo para registrar erros
 
 // 🔹 Função para normalizar números para WhatsApp
 function normalizarNumero(numero) {
@@ -98,27 +99,26 @@ async function startBot() {
             const ext = path.extname(arquivo).toLowerCase();
             try {
                 if (['.mp3', '.wav', '.ogg'].includes(ext)) {
-                    // Envia áudio
                     await sock.sendMessage(jid, { audio: { url: caminho }, mimetype: 'audio/mpeg' });
-                    // Envia legenda separada
                     await sock.sendMessage(jid, { text: legenda });
                 } else if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
-                    // Envia imagem com legenda
                     await sock.sendMessage(jid, { image: { url: caminho }, caption: legenda });
                 } else if (['.mp4', '.mov', '.avi'].includes(ext)) {
-                    // Envia vídeo com legenda
                     await sock.sendMessage(jid, { video: { url: caminho }, caption: legenda });
                 } else {
-                    // Envia documento
                     await sock.sendMessage(jid, { document: { url: caminho }, mimetype: 'application/octet-stream', fileName: arquivo });
-                    // Envia legenda separada
                     await sock.sendMessage(jid, { text: legenda });
                 }
 
                 console.log(`📎 Arquivo enviado: ${arquivo}`);
-                await delay(2000); // 2 segundos entre arquivos
+                await delay(2000);
             } catch (err) {
-                console.error(`⚠️ Erro ao enviar ${arquivo}:`, err);
+                console.error(`⚠️ Erro ao enviar ${arquivo} para ${numero}:`, err);
+
+                // 🔹 Registrar no erros.txt
+                const erroMsg = `${numero} | ${arquivo} | ${err.message}\n`;
+                fs.appendFileSync(ERROS_FILE, erroMsg);
+                console.log(`📝 Registrado no ${ERROS_FILE}`);
             }
         }
 
